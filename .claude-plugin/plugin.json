@@ -8,6 +8,5 @@
   "homepage": "https://github.com/psreek-ai/codebase-mooc",
   "license": "MIT",
   "commands": "./commands/",
-  "skills": "./skills/",
-  "hooks": "./hooks/hooks.json"
+  "skills": "./skills/"
 }
