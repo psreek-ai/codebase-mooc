@@ -2,7 +2,11 @@
   "name": "codebase-mooc",
   "version": "1.0.0",
   "description": "AI-generated engineering education embedded in your codebase. Takes any developer from novice to owner without going anywhere else.",
-  "author": "your-org",
-  "homepage": "https://github.com/your-org/codebase-mooc",
-  "license": "MIT"
+  "author": {
+    "name": "psreek-ai"
+  },
+  "homepage": "https://github.com/psreek-ai/codebase-mooc",
+  "license": "MIT",
+  "commands": "./commands/",
+  "skills": "./skills/"
 }
