@@ -8,6 +8,7 @@ Takes any developer from novice to owner without going anywhere else.
 In Claude Code:
 
 ```
+/plugin marketplace add psreek-ai/codebase-mooc
 /plugin install codebase-mooc@claude-plugins-official
 ```
 
