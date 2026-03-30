@@ -1,0 +1,13 @@
+{
+  "name": "codebase-mooc-marketplace",
+  "description": "Codebase MOOC plugin — AI-generated engineering education embedded in your codebase.",
+  "plugins": [
+    {
+      "name": "codebase-mooc",
+      "description": "AI-generated engineering education embedded in your codebase. Takes any developer from novice to owner without going anywhere else.",
+      "version": "1.0.0",
+      "category": "documentation",
+      "homepage": "https://github.com/your-org/codebase-mooc"
+    }
+  ]
+}
