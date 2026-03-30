@@ -1,13 +1,20 @@
-{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "codebase-mooc-marketplace",
-  "description": "Codebase MOOC plugin — AI-generated engineering education embedded in your codebase.",
+  "description": "Codebase MOOC — AI-generated engineering education embedded in your codebase",
+  "owner": {
+    "name": "psreek-ai",
+    "email": "your-email@example.com"
+  },
   "plugins": [
     {
       "name": "codebase-mooc",
       "description": "AI-generated engineering education embedded in your codebase. Takes any developer from novice to owner without going anywhere else.",
-      "version": "1.0.0",
       "category": "documentation",
-      "homepage": "https://github.com/your-org/codebase-mooc"
+      "source": {
+        "source": "url",
+        "url": "https://github.com/psreek-ai/codebase-mooc.git"
+      },
+      "homepage": "https://github.com/psreek-ai/codebase-mooc"
     }
   ]
 }
