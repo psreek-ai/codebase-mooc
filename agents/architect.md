@@ -20,87 +20,117 @@ first — the map before the territory.
 
 Read .codebase-mooc/memory/codebase/graph.json
 
-Read the cross_component_synthesis and synthesis_reasoning fields first.
-This gives you the system-level understanding you need to write accurate
-architecture documentation.
+Read cross_component_synthesis and synthesis_reasoning first. This gives
+you the system-level understanding you need before writing about components.
 
-## What to produce
+## Where to write
 
-For each component in the graph with curriculum_priority of essential
-or important, produce an architecture curriculum file.
+All curriculum files go under:
+  .codebase-mooc/curriculum/
 
-Write to:
-  .codebase-mooc/memory/curriculum/architecture/{component_name}.json
+NOT under .codebase-mooc/memory/. The curriculum/ directory holds
+human-readable Markdown committed alongside the code. Developers browse
+it on GitHub exactly like any other documentation.
 
-### Content requirements
+Write architecture files to:
+  .codebase-mooc/curriculum/architecture/{component_name}.md
 
-The architecture layer must answer five questions for a new developer:
+## File format
 
-1. What is this component and what problem does it solve?
-   Not what it does technically. What it solves, and why it exists.
+Every architecture file must follow this structure exactly:
 
-2. Where does it fit in the system?
-   Its position in the dependency graph. What depends on it.
-   What it depends on. The data flows through it.
+---
+# {Component Name} — Architecture
 
-3. What are its boundaries?
-   What it owns exclusively. What it deliberately does not own.
-   Where another component takes over.
+> **Study time:** {N} minutes | **Prerequisites:** {prereqs or "None"} | **Review status:** Pending
 
-4. What does a developer need to understand to work on it?
-   The mental model required. The assumptions baked in.
-   The constraints that must be preserved.
+## What it is
 
-5. What should a developer read next?
-   The logical learning sequence from this component.
+{One clear paragraph. What this component is and what problem it solves.
+Not technical mechanics — purpose and motivation.}
 
-### Tone and depth
+## Why it exists
 
-Write for a developer on their first week. They are intelligent and
-motivated but have not seen this codebase before. Use plain language.
-Avoid jargon specific to this codebase without defining it.
+{The problem or need that caused someone to build this.
+What life was like before it existed, or what gap it fills.}
 
-This is the architecture layer — stay at altitude. Do not explain
-implementation detail. Do not describe individual functions.
-That is the instructor's job. Your job is the map, not the territory.
+## Where it fits
 
-## Output format
+{Its position in the system. What calls it. What it calls.
+Include a simple ASCII diagram showing the data flow around it.
 
-{
-  "component": "<name>",
-  "layer": "architecture",
-  "version": "1.0",
-  "generated_at": "<iso timestamp>",
-  "review_status": "pending",
-  "prerequisite_competencies": [],
-  "estimated_study_time_minutes": <int>,
-  "content": {
-    "what_it_is": "<string — one clear paragraph>",
-    "why_it_exists": "<string — the problem it solves>",
-    "position_in_system": "<string — where it fits, dependencies>",
-    "boundaries": "<string — what it owns and what it does not>",
-    "mental_model": "<string — what to understand before working here>",
-    "learning_sequence": ["<component_name>"],
-    "key_concepts": [
-      {
-        "concept": "<string>",
-        "why_it_matters_here": "<string>"
-      }
-    ]
-  }
+Example:
+  order-service → payment-service → ledger-service
+                        ↓
+                  fraud-service
 }
+
+## Boundaries
+
+{What this component owns exclusively and what it does not touch.
+Where responsibility transfers to another component.
+This is often the most important thing a new developer needs to know.}
+
+## Before you work here
+
+{The mental model required before making changes.
+The non-obvious assumptions baked into the design.
+The constraints that must be preserved.
+What developers commonly get wrong on their first change.}
+
+## Read next
+
+- [Implementation walkthrough](../implementation/{component_name}.md)
+- [Decision log](../decision_log/{component_name}.md)
+- [Failure modes](../failure_modes/{component_name}.md)
+---
 
 ## Also produce the system overview
 
-Write one additional file covering the whole system:
+Write: .codebase-mooc/curriculum/architecture/overview.md
 
-  .codebase-mooc/memory/curriculum/architecture/overview.json
+This is the very first file any new developer reads. It must cover:
+- What the system does in the world and who uses it
+- Every major component in a table with one-sentence descriptions
+- An ASCII diagram of the main data flows
+- The architectural philosophy governing design decisions
+- A numbered learning path linking to specific curriculum files
 
-This is the very first thing any new developer reads. It covers:
-- What the system does in the world
-- Who uses it and why
-- The major components and how they relate at the highest level
-- The architectural philosophy that governs the design
-- The recommended learning sequence through the codebase
+Format:
 
-Format matches the component files above but with component: "overview".
+---
+# System Overview
+
+> **Start here.** Read this before any other curriculum file.
+
+## What this system does
+
+{Plain description. Who uses it, what they do with it, why it exists.}
+
+## Components
+
+| Component | What it does |
+|---|---|
+| {name} | {one sentence} |
+
+## How they connect
+
+{ASCII diagram of the main flows and dependencies.}
+
+## Architectural philosophy
+
+{The design principles. What the system optimises for.
+The tradeoffs the designers made deliberately.}
+
+## Learning path
+
+1. [Component A](architecture/component_a.md)
+2. [Component B](architecture/component_b.md)
+{continue in recommended order}
+---
+
+## Arguments
+
+--full-run: process all essential and important components plus overview.
+--affected-components '[...]': process only those components.
+--feedback "...": address the feedback and regenerate.

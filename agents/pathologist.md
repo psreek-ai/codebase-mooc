@@ -12,95 +12,120 @@ context: fork
 
 # Pathologist Agent
 
-Your job is to build the failure mode archive. This layer turns every
-past failure into a teaching opportunity and proactively identifies
-failure modes that have not yet manifested.
-
-A developer who has studied the failure archive understands the system
-under pressure — not just how it works when everything goes right, but
-how it fails, what the symptoms look like, and how to diagnose it fast.
+Your job is to build the failure mode archive as readable Markdown.
+A developer who has read this archive understands the system under
+pressure — not just how it works when everything goes right, but
+how it fails and how to diagnose it fast.
 
 ## Read first
 
 Read .codebase-mooc/memory/codebase/graph.json
-Focus on: known_failure_modes, systemic_failure_modes, and
-synthesis_reasoning.
+Focus on: known_failure_modes, systemic_failure_modes, synthesis_reasoning.
+
+## Where to write
+
+  .codebase-mooc/curriculum/failure_modes/{component_name}.md
+
+One file per component. Each file contains all failure mode entries
+for that component.
+
+## File format
+
+---
+# {Component Name} — Failure Modes
+
+> **Review status:** Pending | **⚠ All entries in this file require human review before going live.**
+
+This document describes how this component fails — what the symptoms
+look like, why the design makes each failure possible, and how to
+diagnose and resolve it quickly.
+
+---
+
+## FM-001 — {Short descriptive title}
+
+**Type:** DOCUMENTED (from incident {file}) or SPECULATIVE
+
+**Severity:** Critical / High / Medium / Low
+**Likelihood:** High / Medium / Low
+
+### What happens
+
+{The observable symptoms — what the developer or user sees.
+What the logs show. What the monitoring alerts on.
+Written as if you are describing it to an on-call engineer at 3am.}
+
+### Why it happens
+
+{What in the system's design makes this failure possible.
+Not just "there's a bug" — what architectural property or
+assumption enables this failure mode.}
+
+### Conditions required
+
+- {Condition 1 that must be true for this to occur}
+- {Condition 2}
+
+### Early warning signals
+
+- {Signal visible in logs or metrics before full failure}
+- {Another signal}
+
+### How to diagnose it
+
+1. Check {what} — this tells you {what it reveals}
+2. Check {what} — this tells you {what it reveals}
+3. {Continue}
+
+### How to resolve it
+
+{The fix when this occurs in production.}
+
+### How to prevent recurrence
+
+{What was or should be changed to prevent this.
+Link to the relevant decision log entry if one exists.}
+
+### What to understand
+
+{What a developer must know to avoid triggering this failure
+when making changes to this component.}
+
+---
+
+## FM-002 — {Short title} ⚠ SPECULATIVE
+
+{Same structure. The ⚠ SPECULATIVE marker means this failure mode
+has not yet manifested in production but is present in the design.
+These always require human review before going live.}
+
+---
+---
 
 ## Processing an incident report
 
-If called with --incident-file <path>:
+If called with --incident-file {path}:
 
-Read the incident file. Extract:
-- What happened — the observable symptoms
-- When it happened — timeline
-- What was affected — components and users
-- What caused it — root cause chain
-- How it was diagnosed — the investigation path
-- How it was resolved — the fix
-- What was changed afterward — preventive measures
+Read the incident file. Extract the timeline, affected components,
+root cause, and resolution. Then read the relevant source files to
+understand what in the design made the failure possible.
 
-Then read the relevant source files to understand:
-- What in the system's design made this failure possible
-- Whether the fix addressed the root cause or the symptom
-- What the system looks like now vs before the incident
+Write a new FM entry to the relevant component's failure modes file.
+Set type to DOCUMENTED and reference the incident file path.
 
-Produce a failure mode entry (format below).
+## Proactive analysis
 
-## Proactive failure mode analysis
+If called with --full-run or --component {n}:
 
-If called with --full-run or --component <n>:
+For each component, reason about failure modes that have not yet
+manifested. Look for: race conditions, missing timeout handling,
+unbounded growth patterns, missing error handling on partial failures,
+cascade failure paths, resource exhaustion, boundary conditions.
 
-For each component, reason proactively about failure modes that have
-not yet manifested. Look for:
+Set all proactive entries to SPECULATIVE.
 
-- Race conditions in concurrent code paths
-- Missing timeout handling on external calls
-- Unbounded growth patterns in data structures
-- Missing error handling on partial failures
-- Cascade failure paths — one component failing taking others down
-- Resource exhaustion patterns
-- Boundary condition handling
-- Implicit assumptions that could be violated
+## Arguments
 
-Mark all proactive entries as SPECULATIVE with a likelihood assessment.
-SPECULATIVE entries always require human review before going live.
-
-## Output format
-
-Write to:
-  .codebase-mooc/memory/curriculum/failure_modes/{component_name}.json
-
-Each component gets one file containing all its failure mode entries.
-
-{
-  "component": "<n>",
-  "layer": "failure_modes",
-  "version": "1.0",
-  "generated_at": "<iso timestamp>",
-  "review_status": "pending",
-  "requires_human_review": true,
-  "failure_modes": [
-    {
-      "id": "fm001",
-      "title": "<short descriptive title>",
-      "type": "DOCUMENTED|SPECULATIVE",
-      "incident_file": "<path or null>",
-      "likelihood": "high|medium|low",
-      "severity": "critical|high|medium|low",
-      "what_happens": "<observable symptoms — what the developer sees>",
-      "why_it_happens": "<root cause — what in the system makes this possible>",
-      "conditions_required": ["<condition that must be true for this to occur>"],
-      "early_warning_signals": ["<signal visible before full failure>"],
-      "diagnosis_path": [
-        {
-          "step": "<what to check>",
-          "why": "<what this reveals>"
-        }
-      ],
-      "resolution": "<how to fix it when it occurs>",
-      "prevention": "<what was or should be changed to prevent recurrence>",
-      "what_to_understand": "<what a developer must understand to avoid triggering this>",
-      "related_failure_modes": ["<fm_id>"]
-    }
-  ]
-}
+--incident-file {path}: process a specific incident report.
+--component {n}: proactive analysis for one component.
+--full-run: proactive analysis for all components.

@@ -2,9 +2,9 @@
 """
 cli.py — Human Review CLI
 
-Interactive CLI for processing the human review queue. Surfaces
-Reviewer Agent flags alongside content so reviewers check targeted
-concerns rather than reading cold.
+Processes the human review queue. Reads Markdown curriculum files
+alongside JSON review annotations so reviewers see both the
+human-readable content and the specific flags from the Reviewer agent.
 
 Usage:
     python3 .codebase-mooc/scripts/review/cli.py
@@ -24,17 +24,40 @@ def find_mooc_dir() -> Path:
     return Path.cwd() / ".codebase-mooc"
 
 
-def truncate(text: str, limit: int = 600) -> str:
+def find_curriculum_file(mooc_dir: Path, component: str, layer: str) -> Path | None:
+    """
+    Curriculum content is Markdown in .codebase-mooc/curriculum/
+    Review annotations are JSON in .codebase-mooc/memory/review_annotations/
+    """
+    md_path = mooc_dir / "curriculum" / layer / f"{component}.md"
+    if md_path.exists():
+        return md_path
+
+    # Boss levels and exercises use a different naming convention
+    exercise_dir = mooc_dir / "curriculum" / "exercises"
+    for arc_dir in exercise_dir.iterdir():
+        if arc_dir.is_dir():
+            for f in arc_dir.glob(f"{component}_*.md"):
+                return f
+
+    return None
+
+
+def read_annotation(mooc_dir: Path, component: str, layer: str) -> dict:
+    """Annotations are JSON — machine-written by the Reviewer agent."""
+    path = mooc_dir / "memory" / "review_annotations" / f"{component}_{layer}.json"
+    if path.exists():
+        try:
+            return json.loads(path.read_text())
+        except json.JSONDecodeError:
+            pass
+    return {}
+
+
+def truncate(text: str, limit: int = 800) -> str:
     if len(text) <= limit:
         return text
-    return text[:limit] + f"\n  ... [{len(text) - limit} more characters]"
-
-
-def render_content(curriculum: dict) -> str:
-    content = curriculum.get("content", curriculum)
-    if isinstance(content, dict):
-        return truncate(json.dumps(content, indent=2))
-    return truncate(str(content))
+    return text[:limit] + f"\n  ... [{len(text) - limit} more chars — open the file to read in full]"
 
 
 def process_item(
@@ -43,82 +66,64 @@ def process_item(
     layer: str,
     reviewer_name: str,
 ) -> str:
-    curriculum_path = (
-        mooc_dir / "memory" / "curriculum" / layer / f"{component}.json"
-    )
-    annotation_path = (
-        mooc_dir
-        / "memory"
-        / "curriculum"
-        / "review_annotations"
-        / f"{component}_{layer}.json"
-    )
+    md_path    = find_curriculum_file(mooc_dir, component, layer)
+    annotation = read_annotation(mooc_dir, component, layer)
 
-    if not curriculum_path.exists():
-        print(f"  ⚠  Content not found: {layer}/{component} — skipping")
+    if not md_path:
+        print(f"  ⚠  Curriculum file not found: {layer}/{component} — skipping")
         return "skipped"
 
     try:
-        curriculum  = json.loads(curriculum_path.read_text())
-        annotations = (
-            json.loads(annotation_path.read_text())
-            if annotation_path.exists()
-            else {}
-        )
-    except json.JSONDecodeError:
-        print(f"  ⚠  Could not read files for {layer}/{component} — skipping")
+        md_content = md_path.read_text()
+    except Exception:
+        print(f"  ⚠  Could not read {md_path} — skipping")
         return "skipped"
 
     print(f"\n{'─' * 60}")
+    print(f"  File:      {md_path.relative_to(mooc_dir.parent)}")
     print(f"  Layer:     {layer}")
     print(f"  Component: {component}")
-    if curriculum.get("generated_at"):
-        print(f"  Generated: {curriculum['generated_at'][:19]}")
     print(f"{'─' * 60}")
 
-    # Reviewer Agent flags
-    flags = annotations.get("flags", [])
+    # Show Reviewer agent flags (from JSON annotation)
+    flags = annotation.get("flags", [])
     if flags:
         print("\n  Reviewer Agent flags:")
         for flag in flags:
             severity = flag.get("severity", "info")
-            icons = {"error": "✗", "warning": "⚠", "info": "ℹ"}
-            icon = icons.get(severity, "•")
+            icon = {"error": "✗", "warning": "⚠", "info": "ℹ"}.get(severity, "•")
             print(f"    {icon} [{severity.upper()}] {flag.get('message', str(flag))}")
-        overall = annotations.get("overall_recommendation", "")
-        if overall:
-            print(f"\n  Reviewer recommendation: {overall.upper()}")
+            if flag.get("location"):
+                print(f"        Location: {flag['location']}")
+        rec = annotation.get("overall_recommendation", "")
+        if rec:
+            print(f"\n  Reviewer recommendation: {rec.upper()}")
     else:
         print("\n  ✓ No flags from Reviewer Agent")
 
-    # Decision log — show inferred count
-    if layer == "decision_log":
-        decisions = curriculum.get("decisions", [])
-        inferred  = sum(1 for d in decisions if d.get("evidence_type") == "INFERRED")
-        if inferred:
-            print(
-                f"\n  ℹ  {inferred} of {len(decisions)} decisions "
-                f"are INFERRED (no direct git evidence)"
-            )
-
-    # Content preview
-    print(f"\n  Content preview:\n")
-    for line in render_content(curriculum).split("\n"):
+    # Show Markdown content preview
+    print(f"\n  Content preview (Markdown):\n")
+    for line in truncate(md_content).split("\n"):
         print(f"  {line}")
+    print(f"\n  Full file: {md_path}")
 
-    # Decision
     print(f"\n  [a] Approve  [r] Reject with feedback  [s] Skip")
     try:
         choice = input("  Decision: ").strip().lower()
     except (EOFError, KeyboardInterrupt):
-        print("\n  Interrupted — stopping review.")
+        print("\n  Interrupted.")
         sys.exit(0)
 
     if choice == "a":
-        curriculum["review_status"]  = "approved"
-        curriculum["human_reviewer"] = reviewer_name
-        curriculum["reviewed_at"]    = datetime.now(timezone.utc).isoformat()
-        curriculum_path.write_text(json.dumps(curriculum, indent=2))
+        # Update the Review status line in the Markdown frontmatter
+        updated = md_content.replace(
+            "Review status:** Pending",
+            f"Review status:** Approved by {reviewer_name} · {datetime.now(timezone.utc).strftime('%Y-%m-%d')}"
+        )
+        if updated == md_content:
+            # Fallback: append approval note if frontmatter pattern not found
+            updated = md_content + f"\n\n<!-- Approved by {reviewer_name} on {datetime.now(timezone.utc).date()} -->\n"
+        md_path.write_text(updated)
         print("  ✅ Approved")
         return "approved"
 
@@ -128,24 +133,24 @@ def process_item(
         except (EOFError, KeyboardInterrupt):
             reason = "No reason provided"
 
-        curriculum["review_status"]    = "rejected"
-        curriculum["rejection_reason"] = reason
-        curriculum["human_reviewer"]   = reviewer_name
-        curriculum["reviewed_at"]      = datetime.now(timezone.utc).isoformat()
-        curriculum_path.write_text(json.dumps(curriculum, indent=2))
+        # Update review status in Markdown
+        updated = md_content.replace(
+            "Review status:** Pending",
+            f"Review status:** Rejected — {reason}"
+        )
+        md_path.write_text(updated)
 
-        # Queue for regeneration
-        queue_path = find_mooc_dir() / "memory" / "coordinator_queue.jsonl"
-        regen_event = {
-            "event_type": "regeneration_requested",
-            "workflow":   "regeneration",
-            "component":  component,
-            "layer":      layer,
-            "feedback":   reason,
-            "priority":   "normal",
-        }
+        # Queue for regeneration (coordinator queue is JSON)
+        queue_path = mooc_dir / "memory" / "coordinator_queue.jsonl"
         with open(queue_path, "a") as f:
-            f.write(json.dumps(regen_event) + "\n")
+            f.write(json.dumps({
+                "event_type": "regeneration_requested",
+                "workflow":   "regeneration",
+                "component":  component,
+                "layer":      layer,
+                "feedback":   reason,
+                "priority":   "normal",
+            }) + "\n")
 
         print("  ❌ Rejected — queued for regeneration with your feedback")
         return "rejected"
@@ -177,7 +182,6 @@ def main() -> None:
                 pass
 
     pending = [i for i in all_items if i.get("status") == "pending"]
-
     if not pending:
         print("  No pending items. 🎉\n")
         return
@@ -189,7 +193,7 @@ def main() -> None:
     print(f"  {total} item(s) pending review.\n")
 
     try:
-        reviewer_name = input("  Your name (for audit trail): ").strip() or "anonymous"
+        reviewer_name = input("  Your name: ").strip() or "anonymous"
     except (EOFError, KeyboardInterrupt):
         print("\n  Cancelled.")
         return
@@ -199,34 +203,26 @@ def main() -> None:
     for item in pending:
         components = item.get("components") or [""]
         layers     = item.get("layers", [])
-
         if item.get("reason"):
             print(f"\n  Reason: {item['reason']}")
-
         for component in components:
             for layer in layers:
                 result = process_item(mooc_dir, component, layer, reviewer_name)
-                if result == "approved":
-                    approved += 1
-                elif result == "rejected":
-                    rejected += 1
-                else:
-                    skipped += 1
-
+                if result == "approved":   approved += 1
+                elif result == "rejected": rejected += 1
+                else:                      skipped  += 1
         item["status"]       = "processed"
         item["processed_at"] = datetime.now(timezone.utc).isoformat()
         item["reviewer"]     = reviewer_name
 
-    # Rewrite queue with updated statuses
     review_path.write_text(
         "\n".join(json.dumps(i) for i in all_items) + "\n"
     )
 
     print(f"\n{'═' * 60}")
-    print(f"  Review complete.")
     print(f"  Approved: {approved}  Rejected: {rejected}  Skipped: {skipped}")
     if rejected:
-        print(f"  Rejected items queued for regeneration.")
+        print("  Rejected items queued for regeneration.")
     print(f"{'═' * 60}\n")
 
 

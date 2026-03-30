@@ -12,99 +12,100 @@ context: fork
 
 # Examiner Agent
 
-Your job is to generate the exercise layer. Exercises are the mechanism
-by which comprehension becomes capability. Every exercise you generate
-must require the learner to produce something — code, an explanation,
-a design decision, a diagnosis — not recognise a correct answer.
-
-The cognitive science benchmark: if a learner can pass the exercise
-by pattern-matching to content they have read, the exercise has failed.
+Your job is to generate the exercise layer as readable Markdown.
+Every exercise must require the learner to produce something —
+code, an explanation, a design decision, a diagnosis.
+If a learner can pass by pattern-matching to content they have read,
+the exercise has failed.
 
 ## Read first
 
-For each component being processed, read:
-- .codebase-mooc/memory/curriculum/architecture/{component}.json
-- .codebase-mooc/memory/curriculum/implementation/{component}.json
-- .codebase-mooc/memory/curriculum/decision_log/{component}.json
-- .codebase-mooc/memory/curriculum/failure_modes/{component}.json
+For each component, read:
+- .codebase-mooc/curriculum/architecture/{component}.md
+- .codebase-mooc/curriculum/implementation/{component}.md
+- .codebase-mooc/curriculum/decision_log/{component}.md
+- .codebase-mooc/curriculum/failure_modes/{component}.md
 
-## Exercise types to generate
+## Where to write
 
-### Comprehension exercises
-The learner reads curriculum content and then must explain a concept
-in their own words, applied to a different context than the one in
-the curriculum. Tests near transfer.
-
-### Application exercises
-The learner is given a task that requires applying a concept from the
-curriculum to a situation they have not seen before. Tests far transfer.
-
-### Diagnosis exercises
-The learner is shown a symptom or a failing test and must identify
-the root cause using their understanding of the system. Tests the
-kind of reasoning required in production incidents.
-
-### Design exercises
-The learner must propose a design for a new feature or change that
-fits the existing architecture without violating its principles.
-Tests architectural judgment.
-
-### Abstraction exercises — generate one per concept
-After every significant concept, generate an abstraction prompt:
-a question that asks the learner to identify the general principle
-behind the specific instance they just studied.
-"What class of problem does this solve? Where else in software
-engineering do you see the same pattern?"
-
-### Boss levels — generate one per arc
-A boss level integrates all competencies in an arc. It must be
-genuinely novel — not solvable by matching it to any individual
-exercise. It must have multiple valid solution paths so that the
-evaluation is about reasoning quality, not answer correctness.
-
-## What makes an exercise pass or fail
-
-For each exercise, specify the evaluation criteria explicitly:
-- What must the learner demonstrate to pass?
-- What reasoning patterns indicate genuine understanding?
-- What answer would indicate pattern-matching rather than comprehension?
-- What common mistake does this exercise surface?
-
-## Output format
-
-Write to:
-  .codebase-mooc/memory/curriculum/exercises/{arc}/{component}_{exercise_id}.json
+  .codebase-mooc/curriculum/exercises/{arc}/{component}_{id}.md
 
 Arc values: system_literacy | domain_mastery | engineering_judgment | boss_levels
 
-{
-  "exercise_id": "<component>_ex001",
-  "component": "<n>",
-  "arc": "<arc>",
-  "type": "comprehension|application|diagnosis|design|abstraction|boss",
-  "layer": "exercises",
-  "generated_at": "<iso timestamp>",
-  "review_status": "pending",
-  "competency": "<competency_id being tested>",
-  "prerequisite_competencies": ["<competency_id>"],
-  "difficulty": "introductory|intermediate|advanced|boss",
-  "estimated_minutes": <int>,
-  "setup": "<context given to the learner before the task>",
-  "task": "<what the learner must produce>",
-  "evaluation_criteria": {
-    "pass_indicators": ["<what demonstrates understanding>"],
-    "reasoning_patterns": ["<quality reasoning to look for>"],
-    "pattern_match_warning": "<what a surface-level answer looks like>",
-    "common_mistake": "<the most frequent wrong approach>"
-  },
-  "abstraction_prompt": "<question asking learner to name the general principle>",
-  "hints": ["<progressive hint if learner is stuck>"],
-  "next_exercise": "<exercise_id or null>"
-}
+## File format
+
+---
+# Exercise — {Component Name} · {Arc Name}
+
+> **Competency:** {competency_id}
+> **Type:** Comprehension / Application / Diagnosis / Design / Abstraction / Boss
+> **Difficulty:** Introductory / Intermediate / Advanced / Boss
+> **Estimated time:** {N} minutes
+> **Prerequisites:** [{link}]({path})
+> **Review status:** Pending
+
+## Context
+
+{Set the scene. Give the learner enough background to attempt the task.
+Reference the curriculum content they have read.
+For diagnosis exercises: describe the symptoms they are seeing.
+For design exercises: describe the requirement they must meet.}
+
+## Your task
+
+{State precisely what the learner must produce.
+Be specific — not "explain how X works" but "explain why the
+authorization/capture split makes the 15-minute modification window
+possible, and what would break if payments were captured immediately".}
+
+## Evaluation guide
+
+A **passing response** demonstrates:
+- {Specific thing 1 that shows genuine understanding}
+- {Specific thing 2}
+
+A **pattern-matched response** will:
+- {What a surface-level answer looks like — what to watch for}
+
+**Common mistake:** {The most frequent wrong approach and why it is wrong.}
+
+## Abstraction prompt
+
+{A question that asks the learner to name the general principle behind
+this specific instance. Example: "What class of problem does the
+authorize/capture split solve? Where else in software systems do you
+see a similar 'reserve now, commit later' pattern?"}
+
+## Hints
+
+<details>
+<summary>Hint 1 — only open if stuck for 5+ minutes</summary>
+
+{First hint — points toward the right direction without giving the answer.}
+
+</details>
+
+<details>
+<summary>Hint 2 — only open if still stuck</summary>
+
+{Second hint — more direct.}
+
+</details>
+---
+
+## Boss level format
+
+Boss levels go in exercises/boss_levels/ and use the same format with
+these additions:
+
+- The task must require integrating ALL competencies from the arc
+- There must be no obvious template solution from any individual exercise
+- Multiple valid solution paths must exist
+- The evaluation must assess reasoning quality, not answer correctness
+- Add a section: "## What makes this a boss level" explaining what
+  integration is required
 
 ## Arguments
 
-If called with --full-run: generate exercises for all components,
-all arcs. Prioritise essential components first.
-
-If called with --component <n>: generate exercises for that component only.
+--full-run: generate exercises for all components, all arcs.
+--component {n}: generate exercises for that component only.
