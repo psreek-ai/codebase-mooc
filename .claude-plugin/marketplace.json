@@ -1,3 +1,4 @@
+{
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "codebase-mooc-marketplace",
   "description": "Codebase MOOC — AI-generated engineering education embedded in your codebase",
