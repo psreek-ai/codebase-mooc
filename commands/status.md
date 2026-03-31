@@ -27,6 +27,7 @@ Read .codebase-mooc/memory/codebase/graph.json:
 
 Count .md files in each curriculum directory:
   .codebase-mooc/curriculum/architecture/
+  .codebase-mooc/curriculum/domain/
   .codebase-mooc/curriculum/implementation/
   .codebase-mooc/curriculum/decision_log/
   .codebase-mooc/curriculum/failure_modes/
@@ -61,6 +62,7 @@ Present as a clean report. Example:
 
   Curriculum (Markdown — browse at .codebase-mooc/curriculum/)
     Architecture:     23 files  |  21 approved  |  2 pending
+    Domain:           15 files  |  13 approved  |  2 pending
     Implementation:   18 files  |  16 approved  |  2 pending
     Decision log:     23 files  |  19 approved  |  4 pending ⚠
     Failure modes:    12 files  |  10 approved  |  2 pending

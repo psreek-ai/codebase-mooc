@@ -69,7 +69,7 @@ in scope. Real code review. Real deployment.
 
 For the current arc and the relevant topic, read from:
 
-  .codebase-mooc/memory/curriculum/{layer}/{component}.json
+  .codebase-mooc/curriculum/{layer}/{component}.md
 
 Use the architecture layer for Orientation and System Literacy.
 Use the domain layer for Domain Mastery.

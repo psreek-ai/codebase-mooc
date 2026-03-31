@@ -33,40 +33,51 @@ Say: "Running Architect — generating architecture layer..."
 Invoke the architect agent with: --full-run
 
 When complete, count the files written to:
-  .codebase-mooc/memory/curriculum/architecture/
+  .codebase-mooc/curriculum/architecture/
 
 Report: "Architecture layer: N files generated"
 
-## Step 3 — Historian
+## Step 3 — Domain Analyst
+
+Say: "Running Domain Analyst — extracting business logic and domain rules..."
+
+Invoke the domain-analyst agent with: --full-run
+
+When complete, count files in:
+  .codebase-mooc/curriculum/domain/
+
+Report: "Domain layer: N files generated"
+
+## Step 4 — Historian
 
 Say: "Running Historian — extracting decision log..."
 
 Invoke the historian agent with: --full-run
 
 When complete, count files in:
-  .codebase-mooc/memory/curriculum/decision_log/
+  .codebase-mooc/curriculum/decision_log/
 
 Note how many have requires_human_review: true and report it.
 
-## Step 4 — Instructor
+## Step 5 — Instructor
 
 Say: "Running Instructor — building implementation walkthroughs..."
 
 Invoke the instructor agent with: --full-run
 
 When complete, count files in:
-  .codebase-mooc/memory/curriculum/implementation/
+  .codebase-mooc/curriculum/implementation/
 
-## Step 5 — Pathologist
+## Step 6 — Pathologist
 
 Say: "Running Pathologist — building failure mode archive..."
 
 Invoke the pathologist agent with: --full-run
 
 When complete, count files in:
-  .codebase-mooc/memory/curriculum/failure_modes/
+  .codebase-mooc/curriculum/failure_modes/
 
-## Step 6 — Examiner
+## Step 7 — Examiner
 
 Say: "Running Examiner — generating exercises and boss levels..."
 
@@ -74,7 +85,7 @@ Invoke the examiner agent with: --full-run
 
 When complete, count files across all exercise arc directories.
 
-## Step 7 — Reviewer
+## Step 8 — Reviewer
 
 Say: "Running Reviewer — validating generated content..."
 

@@ -53,7 +53,7 @@ same failure early. Plus proactive analysis of failure modes that have
 not yet manifested.
 
 **Exercise layer** — gamified assessments that require genuine
-understanding. Competency-gated progression through six arcs: Orientation,
+understanding. Competency-gated progression through seven arcs: Orientation,
 Foundations, System Literacy, Domain Mastery, Engineering Judgment,
 Contribution, and Ownership. Boss levels at the end of each arc.
 
@@ -118,7 +118,7 @@ jobs:
         run: |
           git config user.name "codebase-mooc"
           git config user.email "mooc@ci"
-          git add .codebase-mooc/memory/curriculum/ .codebase-mooc/memory/codebase/
+          git add .codebase-mooc/curriculum/ .codebase-mooc/memory/codebase/
           git diff --staged --quiet || \
             git commit -m "chore(mooc): curriculum update [$(git rev-parse --short HEAD)]"
           git push

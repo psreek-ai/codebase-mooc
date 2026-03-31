@@ -47,7 +47,7 @@ a boss level has an obvious template solution, flag it.
 
 For each item reviewed, write your assessment to:
 
-  .codebase-mooc/memory/curriculum/review_annotations/{component}_{layer}.json
+  .codebase-mooc/memory/review_annotations/{component}_{layer}.json
 
 Format:
 

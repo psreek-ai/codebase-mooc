@@ -25,21 +25,23 @@ def create_structure(root: Path) -> int:
     mooc = root / ".codebase-mooc"
 
     directories = [
+        # Internal JSON state (partially gitignored)
         mooc / "memory" / "codebase",
-        mooc / "memory" / "curriculum" / "architecture",
-        mooc / "memory" / "curriculum" / "domain",
-        mooc / "memory" / "curriculum" / "implementation",
-        mooc / "memory" / "curriculum" / "decision_log",
-        mooc / "memory" / "curriculum" / "failure_modes",
-        mooc / "memory" / "curriculum" / "exercises" / "system_literacy",
-        mooc / "memory" / "curriculum" / "exercises" / "domain_mastery",
-        mooc / "memory" / "curriculum" / "exercises" / "engineering_judgment",
-        mooc / "memory" / "curriculum" / "exercises" / "boss_levels",
-        mooc / "memory" / "curriculum" / "review_annotations",
+        mooc / "memory" / "review_annotations",
         mooc / "memory" / "learners",
         mooc / "memory" / "agent_logs",
         mooc / "scripts" / "setup",
         mooc / "scripts" / "review",
+        # Human-readable Markdown curriculum (fully committed)
+        mooc / "curriculum" / "architecture",
+        mooc / "curriculum" / "domain",
+        mooc / "curriculum" / "implementation",
+        mooc / "curriculum" / "decision_log",
+        mooc / "curriculum" / "failure_modes",
+        mooc / "curriculum" / "exercises" / "system_literacy",
+        mooc / "curriculum" / "exercises" / "domain_mastery",
+        mooc / "curriculum" / "exercises" / "engineering_judgment",
+        mooc / "curriculum" / "exercises" / "boss_levels",
     ]
 
     created = 0
@@ -59,9 +61,9 @@ def create_structure(root: Path) -> int:
             "classify_queue.jsonl\n"
             "human_review_queue.jsonl\n"
             "\n"
-            "# Curriculum and codebase memory are committed\n"
+            "# Codebase memory and review annotations are committed\n"
             "!codebase/\n"
-            "!curriculum/\n"
+            "!review_annotations/\n"
         )
 
     # Empty queues

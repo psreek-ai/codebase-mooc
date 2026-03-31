@@ -42,6 +42,7 @@ memory_dirs = [
 # Human-readable Markdown curriculum directories
 curriculum_dirs = [
     'curriculum/architecture',
+    'curriculum/domain',
     'curriculum/implementation',
     'curriculum/decision_log',
     'curriculum/failure_modes',

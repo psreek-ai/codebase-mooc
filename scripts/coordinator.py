@@ -85,25 +85,39 @@ class Coordinator:
         }.get(workflow, self._incremental_update)(event)
 
     def _agent(self, name: str, *args) -> bool:
-        script = self.scripts / f"{name}.py"
-        if not script.exists():
-            print(f"  ✗ Agent not found: {name}", file=sys.stderr)
+        """Invoke a Claude Code agent by name.
+
+        Agents are defined as .md files in the plugin's agents/ directory.
+        They are invoked via the `claude` CLI which loads the agent definition
+        and runs it in a forked context.
+        """
+        agent_args = " ".join(args)
+        prompt = f"Run the {name} agent with: {agent_args}" if agent_args else f"Run the {name} agent"
+        try:
+            result = subprocess.run(
+                ["claude", "--print", "--agent", name, prompt],
+                cwd=str(self.root),
+                timeout=600,
+            )
+            return result.returncode == 0
+        except FileNotFoundError:
+            print(f"  ✗ 'claude' CLI not found. Install Claude Code to run agents.", file=sys.stderr)
             return False
-        return subprocess.run(
-            ["python3", str(script), *args],
-            cwd=str(self.root)
-        ).returncode == 0
+        except subprocess.TimeoutExpired:
+            print(f"  ✗ Agent {name} timed out after 10 minutes.", file=sys.stderr)
+            return False
 
     def _full_generation(self, _event: dict) -> None:
         print("\n  Full curriculum generation\n", flush=True)
         pipeline = [
-            ("archaeologist", "--full-run"),  # → JSON codebase memory
-            ("architect",     "--full-run"),  # → MD curriculum/architecture/
-            ("historian",     "--full-run"),  # → MD curriculum/decision_log/
-            ("instructor",    "--full-run"),  # → MD curriculum/implementation/
-            ("pathologist",   "--full-run"),  # → MD curriculum/failure_modes/
-            ("examiner",      "--full-run"),  # → MD curriculum/exercises/
-            ("reviewer",      "--full-run"),  # → JSON review annotations
+            ("archaeologist",   "--full-run"),  # → JSON codebase memory
+            ("architect",       "--full-run"),  # → MD curriculum/architecture/
+            ("domain-analyst",  "--full-run"),  # → MD curriculum/domain/
+            ("historian",       "--full-run"),  # → MD curriculum/decision_log/
+            ("instructor",      "--full-run"),  # → MD curriculum/implementation/
+            ("pathologist",     "--full-run"),  # → MD curriculum/failure_modes/
+            ("examiner",        "--full-run"),  # → MD curriculum/exercises/
+            ("reviewer",        "--full-run"),  # → JSON review annotations
         ]
         for name, flag in pipeline:
             print(f"  → {name}...", flush=True)
@@ -113,7 +127,7 @@ class Coordinator:
 
         self._queue_review(
             [],
-            ["architecture", "implementation", "decision_log",
+            ["architecture", "domain", "implementation", "decision_log",
              "failure_modes", "exercises"],
             "Full generation — initial human review required"
         )
@@ -125,8 +139,9 @@ class Coordinator:
         self._agent("archaeologist", "--affected-components", cj)
         self._agent("architect")
         for c in comps:
-            self._agent("historian",  "--component", c)
-            self._agent("instructor", "--component", c)
+            self._agent("domain-analyst", "--component", c)
+            self._agent("historian",      "--component", c)
+            self._agent("instructor",     "--component", c)
         self._agent("reviewer")
         if comps:
             self._queue_review(comps, ["decision_log"],
@@ -144,6 +159,7 @@ class Coordinator:
         fb = event.get("feedback", "")
         agent = {
             "architecture":   "architect",
+            "domain":         "domain-analyst",
             "implementation": "instructor",
             "decision_log":   "historian",
             "failure_modes":  "pathologist",

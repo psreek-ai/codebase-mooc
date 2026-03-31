@@ -50,7 +50,7 @@ Weave reviews into the session naturally — do not announce them as review.
 Based on current_arc and progression_state, determine what comes next.
 
 Arc sequence:
-orientation → system_literacy → domain_mastery →
+orientation → foundations → system_literacy → domain_mastery →
 engineering_judgment → contribution → ownership
 
 Do not advance arcs until the learner has demonstrated mastery through

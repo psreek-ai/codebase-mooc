@@ -14,6 +14,7 @@ Must complete in under 500ms. Must never crash Claude Code.
 """
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -103,10 +104,15 @@ def classify(files: list[str]) -> str:
 
 
 def spawn_coordinator(root: Path) -> None:
-    coordinator = root / ".codebase-mooc" / "scripts" / "coordinator.py"
+    plugin_root = os.environ.get("CLAUDE_PLUGIN_ROOT", "")
+    if plugin_root:
+        coordinator = Path(plugin_root) / "scripts" / "coordinator.py"
+    else:
+        coordinator = Path(__file__).resolve().parent.parent.parent / "scripts" / "coordinator.py"
     if coordinator.exists():
         subprocess.Popen(
             ["python3", str(coordinator), "--process-queue"],
+            cwd=str(root),
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             start_new_session=True,

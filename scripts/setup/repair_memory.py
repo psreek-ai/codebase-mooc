@@ -77,21 +77,23 @@ def repair_jsonl_file(path: Path) -> int:
 
 def ensure_directories(mooc_dir: Path) -> int:
     required = [
+        # Internal JSON state
         "memory/codebase",
-        "memory/curriculum/architecture",
-        "memory/curriculum/domain",
-        "memory/curriculum/implementation",
-        "memory/curriculum/decision_log",
-        "memory/curriculum/failure_modes",
-        "memory/curriculum/exercises/system_literacy",
-        "memory/curriculum/exercises/domain_mastery",
-        "memory/curriculum/exercises/engineering_judgment",
-        "memory/curriculum/exercises/boss_levels",
-        "memory/curriculum/review_annotations",
+        "memory/review_annotations",
         "memory/learners",
         "memory/agent_logs",
         "scripts/setup",
         "scripts/review",
+        # Human-readable Markdown curriculum
+        "curriculum/architecture",
+        "curriculum/domain",
+        "curriculum/implementation",
+        "curriculum/decision_log",
+        "curriculum/failure_modes",
+        "curriculum/exercises/system_literacy",
+        "curriculum/exercises/domain_mastery",
+        "curriculum/exercises/engineering_judgment",
+        "curriculum/exercises/boss_levels",
     ]
     created = 0
     for rel in required:
@@ -133,15 +135,25 @@ def main() -> None:
     else:
         print("  ℹ  Codebase Memory not yet generated — run /codebase-mooc:generate")
 
-    # Repair curriculum files
+    # Repair review annotation files (JSON)
     repaired = 0
-    for json_file in (memory / "curriculum").rglob("*.json"):
-        if not repair_json_file(json_file):
-            repaired += 1
+    annotations_dir = memory / "review_annotations"
+    if annotations_dir.exists():
+        for json_file in annotations_dir.rglob("*.json"):
+            if not repair_json_file(json_file):
+                repaired += 1
     if repaired:
-        print(f"  ✓ Repaired {repaired} corrupt curriculum files")
+        print(f"  ✓ Repaired {repaired} corrupt review annotation files")
     else:
-        print(f"  ✓ All curriculum files healthy")
+        print(f"  ✓ All review annotations healthy")
+
+    # Check curriculum directory exists (Markdown files — no JSON repair needed)
+    curriculum_dir = mooc_dir / "curriculum"
+    if curriculum_dir.exists():
+        md_count = len(list(curriculum_dir.rglob("*.md")))
+        print(f"  ✓ Curriculum: {md_count} Markdown files")
+    else:
+        print("  ℹ  Curriculum not yet generated — run /codebase-mooc:generate")
 
     print(f"\nRepair complete.")
     print("All agents are idempotent — re-run any failed agent safely.\n")

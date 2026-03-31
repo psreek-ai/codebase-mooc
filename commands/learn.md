@@ -11,7 +11,7 @@ $ARGUMENTS contains the learner ID or name.
 If $ARGUMENTS is empty, ask: "Who is this learning session for?"
 Use the response as the learner ID (lowercase, spaces to hyphens).
 
-Check that .codebase-mooc/memory/curriculum/architecture/overview.json
+Check that .codebase-mooc/curriculum/architecture/overview.md
 exists. If not, tell the developer to run /codebase-mooc:generate first
 and stop.
 
