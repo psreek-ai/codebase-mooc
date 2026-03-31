@@ -3,6 +3,36 @@
 AI-generated engineering education embedded in your codebase.
 Takes any developer from novice to owner without going anywhere else.
 
+## Why this exists
+
+AI coding tools are transforming software development, but they carry
+a hidden cost: **comprehension debt**. When developers generate code
+instead of writing it, the reasoning muscles that produce real engineering
+judgment don't get exercised. Across teams, organisations, and an entire
+industry, this creates codebases that run critical systems but that no
+living engineer fully understands.
+
+The antidote to AI-generated ignorance is **AI-generated comprehension**.
+
+The same technology that risks eroding engineering knowledge, when pointed
+differently, can preserve and transmit it at a scale no previous
+documentation effort, bootcamp, or mentorship culture has achieved. This
+plugin turns any codebase into a self-teaching system — one that carries
+within it not just the code, but the architecture behind it, the business
+logic that motivated it, the decisions that shaped it, the failures that
+hardened it, and a structured path from confusion to ownership.
+
+The curriculum is not reference material. It is a complete engineering
+education, grounded in cognitive science research on how expertise
+actually develops. Exercises require genuine understanding, not pattern
+matching. Spaced repetition ensures knowledge persists. Competency gates
+ensure no one advances on familiarity alone.
+
+Read the full argument:
+
+1. [Code & Comprehension, Part 1: The Quiet Catastrophe](https://medium.com/@psreek/code-comprehension-part-1-the-quiet-catastrophe-d42d1c214ef6) — the problem
+2. [Code & Comprehension, Part 2: The Antidote](https://medium.com/@psreek/code-comprehension-part-2-the-antidote-c687b5457049) — the solution
+
 ## Install
 
 In Claude Code:
@@ -145,3 +175,6 @@ This plugin is the technical implementation described in the
 *Code & Comprehension* series on Medium — a series on AI, engineering
 knowledge, and the responsibility we carry toward the developers who
 come after us.
+
+- [Part 1: The Quiet Catastrophe](https://medium.com/@psreek/code-comprehension-part-1-the-quiet-catastrophe-d42d1c214ef6) — Why AI-assisted development without a strategy for preserving human understanding leads to a civilisational dependency crisis.
+- [Part 2: The Antidote](https://medium.com/@psreek/code-comprehension-part-2-the-antidote-c687b5457049) — The case for AI-generated comprehension: an embedded MOOC that turns any codebase into a self-teaching system.
