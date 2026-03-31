@@ -35,12 +35,20 @@ Read the full argument:
 
 ## Install
 
-In Claude Code:
+Two steps in Claude Code:
+
+**Step 1 — Add the marketplace:**
 
 ```
 /plugin marketplace add psreek-ai/codebase-mooc
-/plugin install codebase-mooc@claude-plugins-official
 ```
+
+This registers the plugin source from GitHub. You only need to do this once.
+
+**Step 2 — Install the plugin:**
+
+After adding the marketplace, select `codebase-mooc` from the plugin list
+and choose your install scope (user, project, or local repo).
 
 ## Use
 
