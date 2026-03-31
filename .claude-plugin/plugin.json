@@ -1,6 +1,6 @@
 {
   "name": "codebase-mooc",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "AI-generated engineering education embedded in your codebase. Takes any developer from novice to owner without going anywhere else.",
   "author": {
     "name": "psreek-ai"
